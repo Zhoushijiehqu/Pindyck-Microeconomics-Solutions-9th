@@ -1,0 +1,258 @@
+\documentclass[a4paper, 10pt, openany]{ctexbook}
+
+% ==================== 字体与页面设置 ====================
+\setCJKmainfont[AutoFakeBold=true, AutoFakeSlant=true]{SimSun} 
+% 【修改1】将 geometry 的参数直接在引入时配好，确保后续所有宏包（如 fancyhdr）能拿到正确的页面宽度
+\usepackage[left=2.5cm, right=2.5cm, top=3cm, bottom=2.5cm]{geometry}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{subfiles}
+
+% ==================== 页面与页脚设置 ====================
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt} % 取消页眉的横线
+\cfoot{第\thepage 页} % 设置底部居中显示“第X页”
+
+% 重新定义 plain 样式
+\fancypagestyle{plain}{
+	\fancyhf{}
+	\cfoot{第\thepage 页} % 【修改2】将 get 修复为“第”
+	\renewcommand{\headrulewidth}{0pt}
+}
+\raggedbottom
+\geometry{left=2.5cm, right=2.5cm, top=3cm, bottom=2.5cm}
+
+
+% 章节标题自动格式化：第1章：绪论
+\ctexset{
+	chapter={
+		name={第,章},
+		number=\arabic{chapter},
+		aftername={：},
+		format=\huge\bfseries
+	}
+}
+
+% ==================== 核心与排版宏包 ====================
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{graphicx}
+\usepackage{enumitem} 
+\usepackage{tocloft}
+\usepackage[most]{tcolorbox} 
+\usepackage{hyperref} 
+\hypersetup{
+	colorlinks=true,
+	linkcolor=black,
+	filecolor=blue,      
+	urlcolor=blue,
+	citecolor=black,
+}
+
+% ==================== 绘图宏包 ====================
+\usepackage{etoolbox} 
+\usepackage{tikz}
+\usetikzlibrary{shadows.blur, decorations.pathreplacing}
+\usetikzlibrary{shadows.blur, decorations.pathreplacing, intersections}
+\usetikzlibrary{arrows.meta}
+
+% ====== 定义武理同款高级学术深紫色 ======
+\definecolor{AcademicPurple}{RGB}{102, 0, 102} 
+
+\tikzset{%
+	brace/.style = { decorate, decoration={brace, amplitude=5pt} },
+	mbrace/.style = { decorate, decoration={brace, amplitude=5pt, mirror} },
+	label/.style = { black, midway, scale=0.5, align=center },
+	toplabel/.style = { label, above=.5em, anchor=south },
+	leftlabel/.style = { label,rotate=-90,left=.5em,anchor=north },   
+	bottomlabel/.style = { label, below=.5em, anchor=north },
+	force/.style = { rotate=-90,scale=0.4 },
+	round/.style = { rounded corners=2mm },
+	legend/.style = { right,scale=0.4 },
+	nosep/.style = { inner sep=0pt },
+	generation/.style = { anchor=base }
+}
+
+\newcommand\particle[7][white]{%
+	\begin{tikzpicture}[x=1cm, y=1cm]
+		\path[fill=#1,blur shadow={shadow blur steps=5}] (0.1,0) -- (0.9,0)
+		arc (90:0:1mm) -- (1.0,-0.9) arc (0:-90:1mm) -- (0.1,-1.0)
+		arc (-90:-180:1mm) -- (0,-0.1) arc(180:90:1mm) -- cycle;
+		\ifstrempty{#7}{}{\path[fill=blue!60!white]
+			(0.6,0) --(0.7,0) -- (1.0,-0.3) -- (1.0,-0.4);}
+		\ifstrempty{#6}{}{\path[fill=blue!40!white] (0.7,0) -- (0.9,0)
+			arc (90:0:1mm) -- (1.0,-0.3);}
+		\ifstrempty{#5}{}{\path[fill=blue!20!white] (1.0,-0.7) -- (1.0,-0.9)
+			arc (0:-90:1mm) -- (0.7,-1.0);}
+		\draw[\ifstrempty{#2}{dashed}{black}] (0.1,0) -- (0.9,0)
+		arc (90:0:1mm) -- (1.0,-0.9) arc (0:-90:1mm) -- (0.1,-1.0)
+		arc (-90:-180:1mm) -- (0,-0.1) arc(180:90:1mm) -- cycle;
+		\ifstrempty{#7}{}{\node at(0.825,-0.175) [rotate=-45,scale=0.2] {#7};}
+		\ifstrempty{#6}{}{\node at(0.9,-0.1)  [nosep,scale=0.17] {#6};}
+		\ifstrempty{#5}{}{\node at(0.9,-0.9)  [nosep,scale=0.2] {#5};}
+		\ifstrempty{#4}{}{\node at(0.1,-0.1)  [nosep,anchor=west,scale=0.25]{#4};}
+		\ifstrempty{#3}{}{\node at(0.1,-0.85) [nosep,anchor=west,scale=0.3] {#3};}
+		\ifstrempty{#2}{}{\node at(0.1,-0.5)  [nosep,anchor=west,scale=1.5] {#2};}
+	\end{tikzpicture}
+}
+
+\renewcommand{\cftchapfont}{\color{black}\bfseries}
+\renewcommand{\cftchappagefont}{\color{black}\bfseries}
+\renewcommand{\cftsecfont}{\color{black}}
+\renewcommand{\cftsecpagefont}{\color{black}}
+\renewcommand{\cftsecleader}{\color{black}\cftdotfill{\cftdotsep}}
+
+\setlist[enumerate]{itemsep=1ex, parsep=1ex}
+\graphicspath{{figures/}}
+
+%\includeonly{part_4}
+
+\begin{document}
+	
+	% ==================== 封面 ====================
+	\begin{titlepage}
+		% 核心：利用 TikZ 绝对定位在整页四周绘制【深紫色双层带传统折角花边】
+		\begin{tikzpicture}[remember picture, overlay]
+			% 1. 外层粗框线
+			\draw[line width=1.5pt, AcademicPurple] 
+			([shift={(1.3cm,-1.3cm)}]current page.north west) 
+			rectangle 
+			([shift={(-1.3cm,1.3cm)}]current page.south east);
+			
+			% 2. 内层细框线（形成内外交错的层次感）
+			\draw[line width=0.6pt, AcademicPurple] 
+			([shift={(1.5cm,-1.5cm)}]current page.north west) 
+			rectangle 
+			([shift={(-1.5cm,1.5cm)}]current page.south east);
+			
+			% 3. 四角的古典回字形直角花边折角装饰
+			% 左上角花边
+			\draw[line width=0.6pt, AcademicPurple] ([shift={(1.8cm,-1.5cm)}]current page.north west) -- ([shift={(1.8cm,-1.8cm)}]current page.north west) -- ([shift={(1.5cm,-1.8cm)}]current page.north west);
+			% 右上角花边
+			\draw[line width=0.6pt, AcademicPurple] ([shift={(-1.8cm,-1.5cm)}]current page.north east) -- ([shift={(-1.8cm,-1.8cm)}]current page.north east) -- ([shift={(-1.5cm,-1.8cm)}]current page.north east);
+			% 左下角花边
+			\draw[line width=0.6pt, AcademicPurple] ([shift={(1.8cm,1.5cm)}]current page.south west) -- ([shift={(1.8cm,1.8cm)}]current page.south west) -- ([shift={(1.5cm,1.8cm)}]current page.south west);
+			% 右下角花边
+			\draw[line width=0.6pt, AcademicPurple] ([shift={(-1.8cm,1.5cm)}]current page.south east) -- ([shift={(-1.8cm,1.8cm)}]current page.south east) -- ([shift={(-1.5cm,1.8cm)}]current page.south east);
+		\end{tikzpicture}
+		
+		\centering
+		\vspace*{2.5cm} 
+		
+		% 中文标题：深紫色、大字号、拉开行间距
+		{\Huge \color{AcademicPurple} \textbf{《微观经济学(平狄克)》}} \\[1.5em]
+		{\huge \color{AcademicPurple} \textbf{课后习题全解答（第九版）}} \\[2.5em]
+		
+		% 对应的英文学术翻译，拉开版面间距
+		{\large \color{AcademicPurple} \textit{Complete Solutions to End-of-Chapter Exercises}} \\[0.6em]
+		{\large \color{AcademicPurple} \textit{for Pindyck's Microeconomics (Ninth Edition)}} \\[1.5cm]
+		
+		\vfill 
+		
+		% 下方作者与时间信息
+		{\Large 主编：若光ovo} \\[0.8em]
+		{\large \today}
+		
+		\vspace*{2.5cm}
+		
+		% 防止 titlepage 强行留出空白页
+		\renewcommand{\cleardoublepage}{\clearpage}
+	\end{titlepage}
+	
+	% ==================== 前言/引言（第二页） ====================
+	\frontmatter
+	\thispagestyle{plain}
+	
+	\begin{center}
+		\LARGE\bfseries 前\quad 言
+	\end{center}
+	\vspace{2em}
+	
+	2025 年，我在备考应用经济学硕士研究生的过程中，我发现市面上流通的各类课后习题解答资料普遍存在着难以忽视的硬伤，这些问题不仅严重影响了复习效率，甚至可能导致对知识点的误解。
+	
+	首先是术语体系混乱不统一的问题。不同机构、不同版本的答案对同一个核心经济学概念的表述五花八门，很多地方随意篡改教材原文定义，甚至出现同一概念在同一本资料里前后叫法不一致的情况。这对于需要精准背诵答题话术、统一答题口径的应试备考来说，无疑是致命的。很多考生花费大量时间背诵的答案，在考场上却因为术语不标准而丢分，实在令人惋惜。
+	
+	其次是配图质量低劣且与题目适配度极低的问题。几乎所有流传的答案都在使用十几年前的老旧扫描图，经过无数次转发和压缩后，画质已经严重失真，线条模糊、标注不清，很多图甚至已经看不清坐标轴和均衡点。更严重的是，大量配图与对应题目完全不匹配，只是生搬硬套的通用示意图，根本无法帮助读者理解题目中的具体经济逻辑。很多时候，看着一张模糊不清的图，反而比不看图更难理解解题思路。
+	
+	最后是公式排版臃肿难看、极度浪费版面的问题。很多资料使用 Word 自带公式编辑器或干脆不用公式编译器编写数学公式，排版松散、字体不协调、行距混乱，导致整本资料页数虚高。同等内容下，Word 排版的页数往往是 LaTeX 排版的 1.5 倍以上，不仅阅读体验压抑，而且大幅增加了打印成本。对于需要打印成册反复翻阅的备考资料来说，这是一个非常现实的问题。
+	% ==================== 新增：对比图并排展示 ====================
+	\vspace{1.5em}
+	\begin{center}
+		% 左侧：放模糊配图（图1偏宽，分给 0.52 的版面宽度）
+		\begin{minipage}[c]{0.52\textwidth}
+			\centering
+			% 注意：LaTeX中引入Windows绝对路径时，反斜杠 \ 必须全部改为正斜杠 /
+			\includegraphics[height=4.8cm]{F:/tex/Microeconomics_Solutions/pic/1.png}
+		\end{minipage}
+		\hfill % 撑开中间的间距
+		% 右侧：放糟糕排版（图2偏窄长，分给 0.42 的版面宽度）
+		\begin{minipage}[c]{0.42\textwidth}
+			\centering
+			\includegraphics[height=4.8cm]{F:/tex/Microeconomics_Solutions/pic/2.png}
+		\end{minipage}
+		
+		\vspace{0.8em}
+		{\small\color{gray}\textbf{附图：}市面常见资料中模糊失真的扫描配图（左）与公式臃肿混乱的排版解析（右）}
+	\end{center}
+	\vspace{1.0em}
+	% ==============================================================
+	
+	正是基于这些我亲身经历的痛点，我决定自己动手编写一套完整、规范、高质量的平狄克《微观经济学》（第九版）课后习题解答。本书从一开始就确立了三个核心编写原则：
+	
+	第一，术语 100\% 严格统一。所有名词解释、概念定义、答题话术均严格锚定平狄克第九版教材原文，全书前后表述完全一致。我逐字逐句核定了教材中的每一个定义，确保没有任何一处篡改或偏差，为读者提供一套可以直接背诵、直接用于考场作答的标准答题模板。
+	
+	第二，全定制 TikZ 手绘经济学插图。本书摒弃了所有网传模糊旧图，坚持“一题一图、一题定制”的原则。每一张图都严格按照题目给出的数据和条件绘制，坐标精准、线条清晰、标注规范。所有插图均使用 TikZ 矢量图格式，无论是电子阅览还是打印成册，都能保持完美的清晰度。考虑到学生的实际打印成本，所有插图在设计时都兼顾了彩印和黑白打印两种场景：彩印时色彩分层直观，便于区分不同曲线和经济区间；黑白打印时线条干净利落，依旧清晰可读。
+	
+	第三，全程使用 LaTeX 专业排版。本书所有内容，包括正文、公式、表格、插图，均使用 LaTeX 编写。LaTeX 的数学公式排版能力是公认的行业标准，能够生成美观、紧凑、易读的数学公式。与 Word 相比，LaTeX 排版能够在保证可读性的前提下，大幅缩减页面篇幅，有效降低打印成本。同时，统一的排版体例也让全书阅读逻辑更加连贯，复习检索效率更高。
+	
+	本书采用了统一的答题结构：完整题干提取 $\rightarrow$ 核心考点加粗 $\rightarrow$ 教材原版定义 $\rightarrow$ 分层逻辑解析 $\rightarrow$ 公式推导 $\rightarrow$ 定制示意图 $\rightarrow$ 最终结论。这种结构贯穿全书，能够帮助读者快速抓住每道题的得分点，培养规范的答题习惯。
+	
+	需要特别说明的是，本书是完全免费的非盈利性学术资料。关于前面的第二点，其实很多考研机构给的资料的图也是挺清晰的（如郑炳），但是我也知道还有相当一部分同学和我一样，买的是目标院校的学长学姐自行组织的考研辅导材料。照理来说他们作为研究生，肯定也知道辅导资料的重要性，但是令人失望的是，我从他们的资料中并没有看到他对我们这些考生的照顾，可能他们也是为了节省成本吧，我表示理解。
+	
+	但是希望从我这本书开始，后来者可以获得更有性价比的资料。我编写这本书的初衷，只是为了弥补市面上现有资料的不足，帮助更多和我一样的经济学考生少走弯路。读者可以通过以下三种方式获取完整可打印 PDF 版本：
+	\begin{itemize}[itemsep=0.5ex, parsep=0.5ex]
+		\item 联系作者本人（a15759219744@163.com）获取最新版本
+		\item 前往 GitHub 仓库(还没建好)自行下载
+		\item 前往 Z-Library (还没上传)页面下载
+	\end{itemize}
+	
+	本书的完整 LaTeX 源码也将同步开源在 GitHub 上，欢迎各位读者下载、修改、传播。如果您在使用过程中发现任何错误或不足之处，也欢迎通过 GitHub 提交 Issue 或联系作者进行指正。
+	
+	最后，希望这本凝聚了我备考心血的习题解答，能够成为您微观经济学学习路上的得力助手。祝您学业顺利，考试成功！也希望您收下我这份诚意，将来学成之后，为社会贡献一份力量！
+	
+	
+	\begin{flushright}
+		若光ovo \\
+		\today
+	\end{flushright}
+	
+	\clearpage 
+	
+	% ==================== 目录（第三页） ====================
+	\begin{tcolorbox}[
+		enhanced, breakable, 
+		width=0.9\textwidth, center, 
+		colback=white, colframe=white, 
+		top=1.5cm, bottom=1.5cm, left=1cm, right=1cm
+		]
+		\begin{center}
+			\LARGE\bfseries\color{black} 目\quad 录 
+		\end{center}
+		\vspace{1em}
+		\makeatletter
+		\@starttoc{toc}
+		\makeatother
+	\end{tcolorbox}
+	\clearpage 
+	
+	% ==================== 正文 ====================
+	\mainmatter
+	
+	% ★★★ 在这里把你的四个分卷拼装起来 ★★★
+	\include{part_1}  % 包含 1-5 章
+	\include{part_2}  % 包含 6-10 章
+	\include{part_3}  % 包含 11-15 章
+	\include{part_4}  % 包含 16-19 章
+	
+\end{document}
